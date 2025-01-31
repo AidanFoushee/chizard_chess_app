@@ -1,4 +1,4 @@
-# chizard
+# Chizard
 
 The chess app for wizards
 
