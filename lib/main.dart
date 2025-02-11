@@ -29,6 +29,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<void> _openCamera() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    // allows user to pick an image from their gallery rather than only allowing them to use the picture they take with their camera
+    //final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
         _image = File(image.path);
