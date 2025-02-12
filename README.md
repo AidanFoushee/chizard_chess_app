@@ -1,7 +1,7 @@
 # Chizard
-## [Chizard Back-end](https://github.com/AidanFoushee/chizard_backend)
-
 The chess app for wizards
+
+[Chizard Backend](https://github.com/AidanFoushee/chizard_backend)
 
 ## Getting Started
 
