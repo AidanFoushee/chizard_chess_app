@@ -9,7 +9,7 @@ The chess app for wizards
 * Connect phone to computer and enable developer mode
 * Confirm Android Studio recognizes your device and select it as your running device
 * Open main.dart
-* Press `run`
+* Press `Run`
 
 A few resources to get you started if this is your first Flutter project:
 
