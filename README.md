@@ -1,10 +1,15 @@
 # Chizard
-
 The chess app for wizards
+
+[Chizard Backend](https://github.com/AidanFoushee/chizard_backend)
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+* Ensure the backend is running
+* Connect phone to computer and enable developer mode
+* Confirm Android Studio recognizes your device and select it as your running device
+* Open main.dart
+* Press `Run`
 
 A few resources to get you started if this is your first Flutter project:
 
