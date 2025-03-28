@@ -4,6 +4,7 @@ import 'pages/home_page.dart';
 import 'pages/chessboard_page.dart';
 import 'pages/journal_page.dart';
 import 'journal_entry.dart';
+import 'pages/detect_board_page.dart';
 
 void main() async {
   // Ensure widgets are initialized properly
@@ -29,17 +30,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => HomePage(), // Home page route
         '/chessboard': (context) => ChessboardPage(), // Chessboard page route
         '/journal': (context) => JournalPage(), // Journal page route
+        '/detectBoard': (context) => DetectBoardPage(),
       },
-    );
-  }
-}
-
-class ChessboardPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Digital Chessboard")),
-      body: Center(child: Text("Chessboard UI will be here")),
     );
   }
 }
