@@ -1,3 +1,4 @@
+import 'package:chizard/pages/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/home_page.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/chessboard': (context) => ChessboardPage(), // Chessboard page route
         '/journal': (context) => JournalPage(), // Journal page route
         '/detectBoard': (context) => DetectBoardPage(),
+        '/manualChessboard': (context) => BoardEditorPage()
       },
     );
   }
