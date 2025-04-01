@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class BoardEditorPage extends StatefulWidget {
   const BoardEditorPage({super.key});
@@ -8,22 +9,35 @@ class BoardEditorPage extends StatefulWidget {
 }
 
 class _BoardEditorPageState extends State<BoardEditorPage> {
-  List<List<String>> board = List.generate(8, (_) => List.filled(8, '')); // Empty board
-  String currentFEN = '';
+  List<List<String>> board = List.generate(8, (_) => List.filled(8, ''));  // Empty board
+  String currentFEN = "";  // Declare the FEN string
 
-  // The pieces for FEN notation
+  final Map<String, String> pieceImages = {
+    'K': 'assets/chess_pieces/wK.svg',
+    'Q': 'assets/chess_pieces/wQ.svg',
+    'R': 'assets/chess_pieces/wR.svg',
+    'B': 'assets/chess_pieces/wB.svg',
+    'N': 'assets/chess_pieces/wN.svg',
+    'P': 'assets/chess_pieces/wP.svg',
+    'k': 'assets/chess_pieces/bK.svg',
+    'q': 'assets/chess_pieces/bQ.svg',
+    'r': 'assets/chess_pieces/bR.svg',
+    'b': 'assets/chess_pieces/bB.svg',
+    'n': 'assets/chess_pieces/bN.svg',
+    'p': 'assets/chess_pieces/bP.svg',
+  };
+
   final List<String> whitePieces = ['K', 'Q', 'R', 'B', 'N', 'P'];
   final List<String> blackPieces = ['k', 'q', 'r', 'b', 'n', 'p'];
 
   @override
   void initState() {
     super.initState();
-    // Initialize the board with default pieces
     board[0] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']; // Black pieces
     board[1] = List.filled(8, 'p'); // Black pawns
     board[6] = List.filled(8, 'P'); // White pawns
     board[7] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']; // White pieces
-    updateFEN();
+    updateFEN(); // Initialize FEN at startup
   }
 
   // Convert the board to a FEN string
@@ -62,32 +76,44 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
             children: [
               const Text("White Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
-                children: whitePieces.map((piece) {
-                  return TextButton(
+                children: pieceImages.entries
+                    .where((entry) => entry.key.toUpperCase() == entry.key) // Filter for white pieces
+                    .map((entry) {
+                  return IconButton(
                     onPressed: () {
                       setState(() {
-                        board[row][col] = piece;
+                        board[row][col] = entry.key;
                       });
                       updateFEN();
                       Navigator.pop(context);
                     },
-                    child: Text(piece, style: const TextStyle(fontSize: 20)),
+                    icon: SvgPicture.asset(
+                      entry.value,
+                      width: 40,
+                      height: 40,
+                    ),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 10),
               const Text("Black Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
-                children: blackPieces.map((piece) {
-                  return TextButton(
+                children: pieceImages.entries
+                    .where((entry) => entry.key.toLowerCase() == entry.key) // Filter for black pieces
+                    .map((entry) {
+                  return IconButton(
                     onPressed: () {
                       setState(() {
-                        board[row][col] = piece;
+                        board[row][col] = entry.key;
                       });
                       updateFEN();
                       Navigator.pop(context);
                     },
-                    child: Text(piece, style: const TextStyle(fontSize: 20)),
+                    icon: SvgPicture.asset(
+                      entry.value,
+                      width: 40,
+                      height: 40,
+                    ),
                   );
                 }).toList(),
               ),
@@ -95,7 +121,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    board[row][col] = ''; // Delete piece
+                    board[row][col] = ''; // Remove piece
                   });
                   updateFEN();
                   Navigator.pop(context);
@@ -108,6 +134,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       ),
     );
   }
+
 
   // Display the chessboard
   Widget buildBoard() {
@@ -130,13 +157,15 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               border: Border.all(color: Colors.grey),
             ),
             child: Center(
-              child: Text(
-                piece,
-                style: TextStyle(
-                  color: piece == piece.toUpperCase() ? Colors.white : Colors.black,
-                  fontSize: 24,
-                ),
-              ),
+              child: piece.isNotEmpty && pieceImages.containsKey(piece)
+                  ? SvgPicture.asset(
+                pieceImages[piece]!,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              )
+
+                  : null,
             ),
           ),
         );
@@ -144,7 +173,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     );
   }
 
-  // Send the FEN string to the backend (placeholder function)
+  // Send the FEN string to the backend
   void sendFENToBackend() {
     print("Sending FEN to backend: $currentFEN");
   }
