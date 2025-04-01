@@ -1,90 +1,39 @@
-import 'package:http/http.dart' as http;
+import 'package:chizard/pages/board_editor_page.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
-import 'dart:io';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'pages/home_page.dart';
+import 'pages/chessboard_page.dart';
+import 'pages/journal_page.dart';
+import 'journal_entry.dart';
+import 'pages/detect_board_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  // Ensure widgets are initialized properly
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive and open the box
+  await Hive.initFlutter();
+  Hive.registerAdapter(JournalEntryAdapter()); // Register the adapter
+  await Hive.openBox<JournalEntry>('journalEntries'); // Open the Hive box
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CameraScreen(),
-    );
-  }
-}
-
-Future<void> _uploadImage(File imageFile) async {
-  var request = http.MultipartRequest(
-    'POST',
-    Uri.parse('http://192.168.1.3:8000/upload/'),
-  );
-
-  var file = await http.MultipartFile.fromPath('file', imageFile.path);
-  request.files.add(file);
-
-  try {
-    // Send the request
-    var response = await request.send();
-
-    // success and error handling
-    if (response.statusCode == 200) {
-      print('Image uploaded successfully');
-    } else {
-      print('Failed to upload image: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error uploading image: $e');
-  }
-}
-
-
-class CameraScreen extends StatefulWidget {
-  @override
-  _CameraScreenState createState() => _CameraScreenState();
-}
-
-class _CameraScreenState extends State<CameraScreen> {
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _openCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    // allows user to pick an image from their gallery rather than only allowing them to use the picture they take with their camera
-    //final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _image = File(image.path);
-      });
-      _uploadImage(_image!); // send the image to upload image
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Camera App")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _image != null
-                ? Image.file(_image!)  // Display the image
-                : const Text("No image taken"),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _openCamera,
-              child: const Text("Open Camera"),
-            ),
-          ],
-        ),
-      ),
+      title: 'Chizard',
+      theme: ThemeData.dark(), // Preserve the dark theme
+      initialRoute: '/', // Define the initial route
+      routes: {
+        '/': (context) => HomePage(), // Home page route
+        '/chessboard': (context) => ChessboardPage(), // Chessboard page route
+        '/journal': (context) => JournalPage(), // Journal page route
+        '/detectBoard': (context) => DetectBoardPage(),
+        '/manualChessboard': (context) => BoardEditorPage()
+      },
     );
   }
 }
