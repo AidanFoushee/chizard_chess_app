@@ -8,16 +8,17 @@ class BoardEditorPage extends StatefulWidget {
 }
 
 class _BoardEditorPageState extends State<BoardEditorPage> {
-  List<List<String>> board = List.generate(8, (_) => List.filled(8, ''));  // Empty board
+  List<List<String>> board = List.generate(8, (_) => List.filled(8, '')); // Empty board
   String currentFEN = '';
 
   // The pieces for FEN notation
-  final List<String> pieceSymbols = ['K', 'Q', 'R', 'B', 'N', 'P'];
+  final List<String> whitePieces = ['K', 'Q', 'R', 'B', 'N', 'P'];
+  final List<String> blackPieces = ['k', 'q', 'r', 'b', 'n', 'p'];
 
   @override
   void initState() {
     super.initState();
-    // Initialize the board with some default pieces (for example)
+    // Initialize the board with default pieces
     board[0] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']; // Black pieces
     board[1] = List.filled(8, 'p'); // Black pawns
     board[6] = List.filled(8, 'P'); // White pawns
@@ -25,7 +26,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     updateFEN();
   }
 
-  // Method to convert the board to FEN string
+  // Convert the board to a FEN string
   void updateFEN() {
     String fen = '';
     for (var row in board) {
@@ -49,32 +50,66 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     });
   }
 
-  // Handle tap on a square to edit a piece
+  // Handle tap on a square to add, replace, or delete a piece
   void onSquareTap(int row, int col) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Piece'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: pieceSymbols.map((piece) {
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  board[row][col] = piece; // Place the piece on the board
-                });
-                updateFEN();
-                Navigator.pop(context);
-              },
-              child: Text(piece),
-            );
-          }).toList(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("White Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
+              Wrap(
+                children: whitePieces.map((piece) {
+                  return TextButton(
+                    onPressed: () {
+                      setState(() {
+                        board[row][col] = piece;
+                      });
+                      updateFEN();
+                      Navigator.pop(context);
+                    },
+                    child: Text(piece, style: const TextStyle(fontSize: 20)),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              const Text("Black Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
+              Wrap(
+                children: blackPieces.map((piece) {
+                  return TextButton(
+                    onPressed: () {
+                      setState(() {
+                        board[row][col] = piece;
+                      });
+                      updateFEN();
+                      Navigator.pop(context);
+                    },
+                    child: Text(piece, style: const TextStyle(fontSize: 20)),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    board[row][col] = ''; // Delete piece
+                  });
+                  updateFEN();
+                  Navigator.pop(context);
+                },
+                child: const Text("Remove Piece", style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Display the board
+  // Display the chessboard
   Widget buildBoard() {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -92,6 +127,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           child: Container(
             decoration: BoxDecoration(
               color: (row + col) % 2 == 0 ? Colors.white : Colors.black,
+              border: Border.all(color: Colors.grey),
             ),
             child: Center(
               child: Text(
@@ -110,7 +146,6 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
 
   // Send the FEN string to the backend (placeholder function)
   void sendFENToBackend() {
-    // Here you would send the currentFEN to your backend
     print("Sending FEN to backend: $currentFEN");
   }
 
