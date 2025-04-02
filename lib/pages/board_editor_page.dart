@@ -79,7 +79,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               const Text("White Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 children: pieceImages.entries
-                    .where((entry) => entry.key.toUpperCase() == entry.key) // Filter for white pieces
+                    .where((entry) => entry.key.toUpperCase() == entry.key) // White pieces
                     .map((entry) {
                   return IconButton(
                     onPressed: () {
@@ -101,7 +101,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               const Text("Black Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 children: pieceImages.entries
-                    .where((entry) => entry.key.toLowerCase() == entry.key) // Filter for black pieces
+                    .where((entry) => entry.key.toLowerCase() == entry.key) // Black pieces
                     .map((entry) {
                   return IconButton(
                     onPressed: () {
@@ -132,8 +132,11 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               ),
             ],
           ),
-    );
+        ),
+      ),
+    ); // <-- This closing parenthesis was missing
   }
+
 
 
   // Display the chessboard
