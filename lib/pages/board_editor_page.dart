@@ -160,14 +160,15 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               border: Border.all(color: Colors.grey),
             ),
             child: Center(
-              child: Text(
-                piece,
-                style: TextStyle(
-                  color: piece == piece.toUpperCase() ? Colors.white : Colors
-                      .black,
-                  fontSize: 24,
-                ),
-              ),
+              child: piece.isNotEmpty && pieceImages.containsKey(piece)
+                  ? SvgPicture.asset(
+                pieceImages[piece]!,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              )
+
+                  : null,
             ),
           ),
         );
