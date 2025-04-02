@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class BoardEditorPage extends StatefulWidget {
   const BoardEditorPage({super.key});
@@ -8,7 +10,8 @@ class BoardEditorPage extends StatefulWidget {
 }
 
 class _BoardEditorPageState extends State<BoardEditorPage> {
-  List<List<String>> board = List.generate(8, (_) => List.filled(8, '')); // Empty board
+  List<List<String>> board = List.generate(
+      8, (_) => List.filled(8, '')); // Empty board
   String currentFEN = '';
 
   // The pieces for FEN notation
@@ -54,58 +57,64 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
   void onSquareTap(int row, int col) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Piece'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text("White Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
-              Wrap(
-                children: whitePieces.map((piece) {
-                  return TextButton(
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Select Piece'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("White Pieces",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Wrap(
+                    children: whitePieces.map((piece) {
+                      return TextButton(
+                        onPressed: () {
+                          setState(() {
+                            board[row][col] = piece;
+                          });
+                          updateFEN();
+                          Navigator.pop(context);
+                        },
+                        child: Text(piece, style: const TextStyle(
+                            fontSize: 20)),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Black Pieces",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Wrap(
+                    children: blackPieces.map((piece) {
+                      return TextButton(
+                        onPressed: () {
+                          setState(() {
+                            board[row][col] = piece;
+                          });
+                          updateFEN();
+                          Navigator.pop(context);
+                        },
+                        child: Text(piece, style: const TextStyle(
+                            fontSize: 20)),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
                     onPressed: () {
                       setState(() {
-                        board[row][col] = piece;
+                        board[row][col] = ''; // Delete piece
                       });
                       updateFEN();
                       Navigator.pop(context);
                     },
-                    child: Text(piece, style: const TextStyle(fontSize: 20)),
-                  );
-                }).toList(),
+                    child: const Text(
+                        "Remove Piece", style: TextStyle(color: Colors.red)),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              const Text("Black Pieces", style: TextStyle(fontWeight: FontWeight.bold)),
-              Wrap(
-                children: blackPieces.map((piece) {
-                  return TextButton(
-                    onPressed: () {
-                      setState(() {
-                        board[row][col] = piece;
-                      });
-                      updateFEN();
-                      Navigator.pop(context);
-                    },
-                    child: Text(piece, style: const TextStyle(fontSize: 20)),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    board[row][col] = ''; // Delete piece
-                  });
-                  updateFEN();
-                  Navigator.pop(context);
-                },
-                child: const Text("Remove Piece", style: TextStyle(color: Colors.red)),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -133,7 +142,8 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               child: Text(
                 piece,
                 style: TextStyle(
-                  color: piece == piece.toUpperCase() ? Colors.white : Colors.black,
+                  color: piece == piece.toUpperCase() ? Colors.white : Colors
+                      .black,
                   fontSize: 24,
                 ),
               ),
@@ -145,8 +155,25 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
   }
 
   // Send the FEN string to the backend (placeholder function)
-  void sendFENToBackend() {
-    print("Sending FEN to backend: $currentFEN");
+  void sendFENToBackend() async {
+    final url = Uri.parse(
+        "http://10.0.2.2:8000/analyze_fen"); // Update with your actual backend URL
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"fen": currentFEN}),
+      );
+
+      if (response.statusCode == 200) {
+        print("✅ FEN successfully sent: ${response.body}");
+      } else {
+        print("❌ Failed to send FEN: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("❌ Error sending FEN: $e");
+    }
   }
 
   @override
