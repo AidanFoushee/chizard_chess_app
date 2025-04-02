@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BoardEditorPage extends StatefulWidget {
@@ -130,8 +132,6 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 
@@ -157,15 +157,14 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
               border: Border.all(color: Colors.grey),
             ),
             child: Center(
-              child: piece.isNotEmpty && pieceImages.containsKey(piece)
-                  ? SvgPicture.asset(
-                pieceImages[piece]!,
-                width: 40,
-                height: 40,
-                fit: BoxFit.contain,
-              )
-
-                  : null,
+              child: Text(
+                piece,
+                style: TextStyle(
+                  color: piece == piece.toUpperCase() ? Colors.white : Colors
+                      .black,
+                  fontSize: 24,
+                ),
+              ),
             ),
           ),
         );
@@ -173,9 +172,26 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     );
   }
 
-  // Send the FEN string to the backend
-  void sendFENToBackend() {
-    print("Sending FEN to backend: $currentFEN");
+  // Send the FEN string to the backend (placeholder function)
+  void sendFENToBackend() async {
+    final url = Uri.parse(
+        "http://10.0.2.2:8000/analyze_fen"); // Update with your actual backend URL
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"fen": currentFEN}),
+      );
+
+      if (response.statusCode == 200) {
+        print("✅ FEN successfully sent: ${response.body}");
+      } else {
+        print("❌ Failed to send FEN: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("❌ Error sending FEN: $e");
+    }
   }
 
   @override
