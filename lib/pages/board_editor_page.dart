@@ -13,6 +13,9 @@ class BoardEditorPage extends StatefulWidget {
 class _BoardEditorPageState extends State<BoardEditorPage> {
   List<List<String>> board = List.generate(8, (_) => List.filled(8, ''));  // Empty board
   String currentFEN = "";  // Declare the FEN string
+  String evaluation = "";
+  String bestMove = "";
+  bool isLoading = false;
 
   final Map<String, String> pieceImages = {
     'K': 'assets/chess_pieces/wK.svg',
@@ -134,10 +137,8 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           ),
         ),
       ),
-    ); // <-- This closing parenthesis was missing
+    );
   }
-
-
 
   // Display the chessboard
   Widget buildBoard() {
@@ -167,7 +168,6 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
                 height: 40,
                 fit: BoxFit.contain,
               )
-
                   : null,
             ),
           ),
@@ -176,10 +176,29 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     );
   }
 
-  // Send the FEN string to the backend (placeholder function)
+  // Send the FEN string to the backend
   void sendFENToBackend() async {
-    final url = Uri.parse(
-        "http://10.0.2.2:8000/analyze_fen"); // Update with your actual backend URL
+    final url = Uri.parse("http://10.0.2.2:8000/analyze_fen");
+
+    setState(() {
+      isLoading = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/magic_hourglass.gif', width: 100, height: 100),
+            const SizedBox(height: 10),
+            const Text("Analyzing position...", style: TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    );
 
     try {
       final response = await http.post(
@@ -188,15 +207,28 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
         body: jsonEncode({"fen": currentFEN}),
       );
 
+      Navigator.pop(context); // Close loading dialog
+
       if (response.statusCode == 200) {
-        print("✅ FEN successfully sent: ${response.body}");
+        final data = jsonDecode(response.body);
+        setState(() {
+          evaluation = data['evaluation'].toString();
+          bestMove = data['best_move'].toString();
+        });
+        print("✅ FEN successfully sent: $data");
       } else {
         print("❌ Failed to send FEN: ${response.statusCode}");
       }
     } catch (e) {
+      Navigator.pop(context); // Close loading dialog on error
       print("❌ Error sending FEN: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -216,11 +248,20 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: sendFENToBackend,
-              child: const Text('Send FEN to Backend'),
+              child: const Text('Analyze Position'),
             ),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text('Current FEN: $currentFEN'),
+              child: Column(
+                children: [
+                  Text('Current FEN: $currentFEN'),
+                  if (evaluation.isNotEmpty)
+                    Text('📊 Evaluation: $evaluation'),
+                  if (bestMove.isNotEmpty)
+                    Text('♟️ Best Move: $bestMove'),
+                ],
+              ),
             ),
           ],
         ),
