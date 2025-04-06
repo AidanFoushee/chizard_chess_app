@@ -257,10 +257,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
                 children: [
                   Text('Current FEN: $currentFEN'),
                   if (evaluation.isNotEmpty)
-                    EvaluationBar(
-                      evaluation: double.tryParse(evaluation) ?? 0.0,
-                    ),
-
+                    Text('📊 Evaluation: $evaluation'),
                   if (bestMove.isNotEmpty)
                     Text('♟️ Best Move: $bestMove'),
                 ],
@@ -272,60 +269,3 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     );
   }
 }
-class EvaluationBar extends StatelessWidget {
-  final double evaluation;
-
-  const EvaluationBar({super.key, required this.evaluation});
-
-  @override
-  Widget build(BuildContext context) {
-    // Clamp evaluation to a sane range for visualization (-10 to +10)
-    final clampedEval = evaluation.clamp(-10.0, 10.0);
-    final whitePercentage = ((10 - clampedEval) / 20).clamp(0.0, 1.0);
-
-    return Column(
-      children: [
-        const Text("📊 Evaluation", style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 40,
-              height: 200,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: (whitePercentage * 100).round(),
-                    child: Container(color: Colors.white),
-                  ),
-                  Expanded(
-                    flex: 100 - (whitePercentage * 100).round(),
-                    child: Container(color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              child: Container(
-                color: Colors.white70,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                child: Text(
-                  evaluation.toStringAsFixed(2),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
