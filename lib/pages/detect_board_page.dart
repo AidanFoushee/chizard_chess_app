@@ -27,7 +27,7 @@ class _DetectBoardPageState extends State<DetectBoardPage> {
   Future<void> _uploadImage(File imageFile) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://192.168.1.12:8000/upload/'),
+      Uri.parse('http://{IP ADDRESS}:8000/upload/'),
     );
 
     request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
